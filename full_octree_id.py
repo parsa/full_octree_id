@@ -47,7 +47,7 @@ def main():
                 y[1] = (x[1] << dlev) + j
                 y[2] = (x[2] << dlev) + k
                 new_id = to_id(y, lev + dlev)
-                print('the ({},{},{}) cell in subgrid {} has full octree id {:o}'.format(i, j, k, args.base, new_id))
+                print('the ({},{},{}) cell in sub-grid {} has full octree id {:o}'.format(i, j, k, args.base, new_id))
 
 if __name__ == '__main__':
     main()

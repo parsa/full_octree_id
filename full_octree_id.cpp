@@ -5,73 +5,74 @@
 
 constexpr auto NDIM = 3;
 
-size_t to_id(std::array<int, NDIM> x, int lev)
+size_t to_id(std::array<int, NDIM> indices, int levels)
 {
     size_t id = 1;
-    for (int l = 0; l < lev; l++)
+    for (int l = 0; l < levels; ++l)
     {
-        for (int d = 0; d < NDIM; d++)
+        for (int d = 0; d < NDIM; ++d)
         {
             id <<= 1;
-            id |= ((x[d] >> l) & 1);
+            id |= ((indices[d] >> l) & 1);
         }
     }
     return id;
 }
 
-std::pair<std::array<int, NDIM>, int> from_id(size_t id)
+std::pair<std::array<int, NDIM>, int> parse_id(size_t id)
 {
-    std::array<int, NDIM> x;
-    int lev = 0;
+    std::array<int, NDIM> indices;
+    indices.fill(0);
 
-    for (int d = 0; d < NDIM; d++)
+    int level = 0;
+
+    for (level = 0; id != 1; ++level)
     {
-        x[d] = 0;
-    }
-    for (lev = 0; id != 1; lev++)
-    {
-        printf("%i %llo\n", lev, id);
+        printf("%i %llo\n", level, id);
         for (int d = NDIM - 1; d >= 0; d--)
         {
-            x[d] <<= 1;
-            x[d] |= (id & 1);
+            indices[d] <<= 1;
+            indices[d] |= (id & 1);
             id >>= 1;
         }
     }
-    return std::make_pair(x, lev);
+    return std::make_pair(std::move(indices), level);
 }
 
 int main(int argc, char* argv[])
 {
     if (argc != 3)
     {
-        printf("Usage: full_octree <string subgrid id> <number of additional "
+        printf("Usage: full_octree <string sub-grid id> <number of additional "
                "levels>\n");
+        return 1;
     }
 
-    size_t id = std::stoull(argv[1], nullptr, 8);
-    int dlev = std::atoi(argv[2]);
+    size_t subgrid_id = std::stoull(argv[1], nullptr, 8);
+    int additional_levels = std::atoi(argv[2]);
 
-    auto r  = from_id(id);
-    std::array<int, NDIM> x = r.first;
-    int lev = r.second;
+    std::array<int, NDIM> subgrid_indices;
+    int base_level;
+    std::tie(subgrid_indices, base_level) = parse_id(subgrid_id);
 
-    std::array<int, NDIM> y;
-    printf("base_level is %i\n", lev);
-    for (int i = 0; i < (1 << dlev); i++)
+    printf("base_level is %i\n", base_level);
+    for (int i = 0; i < (1 << additional_levels); ++i)
     {
-        for (int j = 0; j < (1 << dlev); j++)
+        for (int j = 0; j < (1 << additional_levels); ++j)
         {
-            for (int k = 0; k < (1 << dlev); k++)
+            for (int k = 0; k < (1 << additional_levels); ++k)
             {
-                y[0] = (x[0] << dlev) + i;
-                y[1] = (x[1] << dlev) + j;
-                y[2] = (x[2] << dlev) + k;
-                size_t new_id = to_id(y, lev + dlev);
-                printf("the (%i,%i,%i) cell in subgrid %s has full octree id "
+                std::array<int, NDIM> const indices{
+                    (subgrid_indices[0] << additional_levels) + i,
+                    (subgrid_indices[1] << additional_levels) + j,
+                    (subgrid_indices[2] << additional_levels) + k};
+
+                size_t new_id = to_id(indices, base_level + additional_levels);
+                printf("the (%i,%i,%i) cell in sub-grid %s has full octree id "
                        "%o\n",
                     i, j, k, argv[1], new_id);
             }
         }
     }
+    return 0;
 }
