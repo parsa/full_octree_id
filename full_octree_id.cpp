@@ -3,9 +3,9 @@
 
 constexpr auto NDIM = 3;
 
-void to_id(size_t& id, std::array<int, NDIM> x, int lev)
+size_t to_id(std::array<int, NDIM> x, int lev)
 {
-    id = 1;
+    size_t id = 1;
     for (int l = 0; l < lev; l++)
     {
         for (int d = 0; d < NDIM; d++)
@@ -14,6 +14,7 @@ void to_id(size_t& id, std::array<int, NDIM> x, int lev)
             id |= ((x[d] >> l) & 1);
         }
     }
+    return id;
 }
 
 void from_id(size_t id, std::array<int, NDIM>& x, int& lev)
@@ -67,8 +68,7 @@ int main(int argc, char* argv[])
                 y[0] = (x[0] << dlev) + i;
                 y[1] = (x[1] << dlev) + j;
                 y[2] = (x[2] << dlev) + k;
-                size_t new_id;
-                to_id(new_id, y, lev + dlev);
+                size_t new_id = to_id(y, lev + dlev);
                 printf("the (%i,%i,%i) cell in subgrid %s has full octree id "
                        "%o  \n",
                     i, j, k, argv[1], new_id);
