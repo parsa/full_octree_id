@@ -1,5 +1,4 @@
 import argparse
-import sys
 
 NDIM = 3
 
@@ -32,16 +31,8 @@ def main():
     parser.add_argument('dlev', type=int)
     args = parser.parse_args()
 
-    ptr = args.base
+    base_id = int(args.base, 8)
     dlev = args.dlev
-    assert(ptr[0] == '1')
-    base_id = 1
-    ptr = ptr[1:]
-
-    while ptr:
-        base_id <<= NDIM
-        base_id |= (ord(ptr[0]) - ord('0'))
-        ptr = ptr[1:]
 
     y = [0] * NDIM
 

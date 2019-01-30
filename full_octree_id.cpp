@@ -1,5 +1,6 @@
 #include <array>
 #include <cassert>
+#include <string>
 #include <utility>
 
 constexpr auto NDIM = 3;
@@ -48,22 +49,14 @@ int main(int argc, char* argv[])
                "levels>\n");
     }
 
-    const char* ptr = argv[1];
+    size_t id = std::stoull(argv[1], nullptr, 8);
     int dlev = std::atoi(argv[2]);
-    assert(*ptr == '1');
-    size_t id = 1;
-    ptr++;
-    while (*ptr != '\0')
-    {
-        id <<= NDIM;
-        id |= (*ptr - '0');
-        ptr++;
-    }
-    std::array<int, NDIM> y;
 
     auto r  = from_id(id);
     std::array<int, NDIM> x = r.first;
     int lev = r.second;
+
+    std::array<int, NDIM> y;
     printf("base_level is %i\n", lev);
     for (int i = 0; i < (1 << dlev); i++)
     {
