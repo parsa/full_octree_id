@@ -1,5 +1,6 @@
 #include <array>
 #include <cassert>
+#include <utility>
 
 constexpr auto NDIM = 3;
 
@@ -17,8 +18,11 @@ size_t to_id(std::array<int, NDIM> x, int lev)
     return id;
 }
 
-void from_id(size_t id, std::array<int, NDIM>& x, int& lev)
+std::pair<std::array<int, NDIM>, int> from_id(size_t id)
 {
+    std::array<int, NDIM> x;
+    int lev = 0;
+
     for (int d = 0; d < NDIM; d++)
     {
         x[d] = 0;
@@ -33,6 +37,7 @@ void from_id(size_t id, std::array<int, NDIM>& x, int& lev)
             id >>= 1;
         }
     }
+    return std::make_pair(x, lev);
 }
 
 int main(int argc, char* argv[])
@@ -54,10 +59,11 @@ int main(int argc, char* argv[])
         id |= (*ptr - '0');
         ptr++;
     }
-    std::array<int, NDIM> x;
     std::array<int, NDIM> y;
-    int lev;
-    from_id(id, x, lev);
+
+    auto r  = from_id(id);
+    std::array<int, NDIM> x = r.first;
+    int lev = r.second;
     printf("base_level is %i\n", lev);
     for (int i = 0; i < (1 << dlev); i++)
     {
@@ -70,7 +76,7 @@ int main(int argc, char* argv[])
                 y[2] = (x[2] << dlev) + k;
                 size_t new_id = to_id(y, lev + dlev);
                 printf("the (%i,%i,%i) cell in subgrid %s has full octree id "
-                       "%o  \n",
+                       "%o\n",
                     i, j, k, argv[1], new_id);
             }
         }
