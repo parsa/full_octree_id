@@ -1,7 +1,7 @@
 #include <array>
 #include <cassert>
 
-#define NDIM 3
+constexpr auto NDIM = 3;
 
 void to_id(size_t& id, std::array<int, NDIM> x, int lev)
 {
