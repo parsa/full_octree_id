@@ -26,7 +26,7 @@ std::pair<std::array<int, NDIM>, int> parse_id(size_t id)
 
     int level = 0;
 
-    for (level = 0; id != 1; ++level)
+    for (; id != 1; ++level)
     {
         printf("%i %llo\n", level, id);
         for (int d = NDIM - 1; d >= 0; d--)

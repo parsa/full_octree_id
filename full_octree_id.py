@@ -1,53 +1,61 @@
 import argparse
 
+
 NDIM = 3
 
-def to_id(x, lev):
+
+def to_id(indices, levels):
     id = 1
-    for l in range(0, lev):
+    for l in range(0, levels):
         for d in range(0, NDIM):
             id <<= 1
-            id |= (x[d] >> l) & 1
+            id |= (indices[d] >> l) & 1
     return id
 
-def from_id(id):
-    x = [0] * NDIM
-    lev = 0
+
+def parse_id(id):
+    indices = [0] * NDIM
+    level = 0
     
     while id != 1:
-        print('{} {:o}'.format(lev, id))
+        print('{} {:o}'.format(level, id))
         for d in range(NDIM - 1, -1, -1):
-            x[d] <<= 1
-            x[d] |= (id & 1)
+            indices[d] <<= 1
+            indices[d] |= (id & 1)
             id >>= 1
-        lev += 1
+        level += 1
         
-    return x, lev
+    return indices, level
+
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Generate the Octree for sub-elements of a Octree')
-    parser.add_argument('base', type=str)
-    parser.add_argument('dlev', type=int)
+        description='Generate Octree IDs for elements of a subgrid')
+    parser.add_argument('base', type=str, help='sub-grid id')
+    parser.add_argument('additional_levels', type=int, help='number of additional levels')
     args = parser.parse_args()
 
-    base_id = int(args.base, 8)
-    dlev = args.dlev
+    subgrid_id = int(args.base, 8)
+    additional_levels = args.additional_levels
 
     y = [0] * NDIM
 
-    x, lev = from_id(base_id)
+    subgrid_indices, base_level = parse_id(subgrid_id)
 
-    print("base_level is", lev)
+    print("base_level is", base_level)
 
-    for i in range(0, 1 << dlev):
-        for j in range(0, 1 << dlev):
-            for k in range(0, 1 << dlev):
-                y[0] = (x[0] << dlev) + i
-                y[1] = (x[1] << dlev) + j
-                y[2] = (x[2] << dlev) + k
-                new_id = to_id(y, lev + dlev)
-                print('the ({},{},{}) cell in sub-grid {} has full octree id {:o}'.format(i, j, k, args.base, new_id))
+    for i in range(0, 1 << additional_levels):
+        for j in range(0, 1 << additional_levels):
+            for k in range(0, 1 << additional_levels):
+                indices = (
+                    (subgrid_indices[0] << additional_levels) + i,
+                    (subgrid_indices[1] << additional_levels) + j,
+                    (subgrid_indices[2] << additional_levels) + k
+                )
+                new_id = to_id(indices, base_level + additional_levels)
+                print('the ({},{},{}) cell in sub-grid {} has full octree id {:o}'.format(
+                    i, j, k, args.base, new_id))
+
 
 if __name__ == '__main__':
     main()
