@@ -38,8 +38,6 @@ def main():
     subgrid_id = int(args.base, 8)
     additional_levels = args.additional_levels
 
-    y = [0] * NDIM
-
     subgrid_indices, base_level = parse_id(subgrid_id)
 
     print("base_level is", base_level)
